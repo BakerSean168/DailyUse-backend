@@ -1,6 +1,6 @@
-const mysql = require('mysql2/promise');
+import { createPool, Pool } from 'mysql2/promise'
 
-const pool = mysql.createPool({
+export const pool: Pool = createPool({
   host: 'localhost',
   user: 'root',
   password: 'Sichuan168@',  // 替换为你的MySQL密码
@@ -8,6 +8,4 @@ const pool = mysql.createPool({
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
-});
-
-module.exports = pool;
+})

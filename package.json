@@ -2,22 +2,32 @@
   "name": "dailyuse-backend",
   "version": "0.0.0",
   "description": "express",
-  "main": "app.js",
+  "main": "src/app.js",
   "scripts": {
-    "start": "node app.js",
-    "dev": "nodemon app.js",
+    "start": "node dist/app.js",
+    "build": "tsc",
+    "dev": "ts-node-dev --respawn src/app.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "init_db": "node scripts/create_database.js"
+    "init_db": "ts-node scripts/create_database.ts"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "bcryptjs": "^3.0.2",
+    "cors": "^2.8.5",
     "express": "^5.1.0",
     "jsonwebtoken": "^9.0.2",
     "mysql2": "^3.14.1"
   },
   "devDependencies": {
-    "nodemon": "^3.1.10"
+    "@types/bcryptjs": "^2.4.6",
+    "@types/cors": "^2.8.18",
+    "@types/express": "^5.0.2",
+    "@types/jsonwebtoken": "^9.0.9",
+    "@types/node": "^22.15.19",
+    "nodemon": "^3.1.10",
+    "ts-node": "^10.9.2",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.8.3"
   }
 }

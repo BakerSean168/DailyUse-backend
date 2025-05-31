@@ -1,10 +1,10 @@
 import { Request, Response, NextFunction } from 'express'
 import jwt from 'jsonwebtoken'
-import { JwtPayload } from '../users/types/user'
+import { JwtPayload } from '../../users/types/user'
 
 // JWT密钥 - 在生产环境中应该使用环境变量
 export const JWT_SECRET = 'your-secret-key'
-
+export const REFRESH_TOKEN_SECRET = 'your-refresh-token-secret-key'
 /**
  * JWT认证中间件
  * 验证请求头中的Bearer token是否有效

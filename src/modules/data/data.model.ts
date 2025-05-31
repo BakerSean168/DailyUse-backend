@@ -14,7 +14,7 @@ export interface Data extends RowDataPacket {
 export interface CreateDataDto {
     file_name: string;
     file_content: any;
-    user_id: number;
+    user_id: string;
 }
 
 export interface UpdateDataDto {
@@ -23,7 +23,7 @@ export interface UpdateDataDto {
 }
 
 export class DataModel {
-    static async findAllByUserId(userId: number): Promise<Data[]> {
+    static async findAllByUserId(userId: string): Promise<Data[]> {
         const [rows] = await pool.query<Data[]>(
             'SELECT * FROM user_data WHERE user_id = ? ORDER BY last_modified DESC',
             [userId]
@@ -31,7 +31,7 @@ export class DataModel {
         return rows;
     }
 
-    static async findByUserIdAndFileName(userId: number, fileName: string): Promise<Data | null> {
+    static async findByUserIdAndFileName(userId: string, fileName: string): Promise<Data | null> {
         const [rows] = await pool.query<Data[]>(
             'SELECT * FROM user_data WHERE user_id = ? AND file_name = ?',
             [userId, fileName]
@@ -48,7 +48,7 @@ export class DataModel {
     }
 
     // 修改：更新时同时更新 last_modified 时间戳
-    static async update(userId: number, fileName: string, data: UpdateDataDto): Promise<boolean> {
+    static async update(userId: string, fileName: string, data: UpdateDataDto): Promise<boolean> {
         const [result] = await pool.query<OkPacket>(
             'UPDATE user_data SET file_content = ?, version = version + 1, last_modified = CURRENT_TIMESTAMP WHERE user_id = ? AND file_name = ? AND version = ?',
             [JSON.stringify(data.file_content), userId, fileName, data.version]
@@ -56,7 +56,7 @@ export class DataModel {
         return result.affectedRows > 0;
     }
 
-    static async delete(userId: number, fileName: string): Promise<boolean> {
+    static async delete(userId: string, fileName: string): Promise<boolean> {
         const [result] = await pool.query<OkPacket>(
             'DELETE FROM user_data WHERE user_id = ? AND file_name = ?',
             [userId, fileName]
@@ -89,7 +89,7 @@ export class DataModel {
 
     // 新增：根据时间戳更新（用于同步）
     static async updateWithTimestamp(
-        userId: number, 
+        userId: string, 
         fileName: string, 
         fileContent: any, 
         clientTimestamp: number

@@ -1,11 +1,11 @@
 import { CreateDataDto, Data, UpdateDataDto, DataModel } from './data.model';
 
 export class DataService {
-    static async getData(userId: number): Promise<Data[]> {
+    static async getData(userId: string): Promise<Data[]> {
         return await DataModel.findAllByUserId(userId);
     }
 
-    static async getDataByFileName(userId: number, fileName: string): Promise<Data | null> {
+    static async getDataByFileName(userId: string, fileName: string): Promise<Data | null> {
         return await DataModel.findByUserIdAndFileName(userId, fileName);
     }
 
@@ -13,11 +13,11 @@ export class DataService {
         return await DataModel.create(data);
     }
 
-    static async updateData(userId: number, fileName: string, data: UpdateDataDto): Promise<boolean> {
+    static async updateData(userId: string, fileName: string, data: UpdateDataDto): Promise<boolean> {
         return await DataModel.update(userId, fileName, data);
     }
 
-    static async deleteData(userId: number, fileName: string): Promise<boolean> {
+    static async deleteData(userId: string, fileName: string): Promise<boolean> {
         return await DataModel.delete(userId, fileName);
     }
 }

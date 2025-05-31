@@ -1,8 +1,8 @@
 import { Router, Request, Response } from 'express'
 import { UserController } from './user.controller'
-import { authenticateToken } from '../auth/auth.middleware'
+import { authenticateToken } from '../auth/middlewares/auth.middleware'
 import { ApiResponse } from './types/user'
-import { validateRegisterData, validateLoginData } from './middlewares/user.validatData.middleware'
+import { validateRegisterData } from './middlewares/user.validatData.middleware'
 /**
  * 用户路由模块
  */
@@ -11,11 +11,13 @@ const router = Router()
 // 用户注册路由
 router.post('/register', validateRegisterData, UserController.register)
 
-// 用户登录路由
-router.post('/login', validateLoginData, UserController.login)
+
 
 // 获取用户列表路由
 router.get('/users', UserController.getAllUsers)
+
+// 获取当前用户信息路由
+router.get('/current', authenticateToken, UserController.getCurrentUser)
 
 // 受保护的路由示例 - 需要JWT认证
 router.get('/protected', authenticateToken, (

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
-import { RegisterRequest, LoginRequest } from '../types/user'
+import { RegisterRequest } from '../../users/types/user'
 
 /**
  * 验证注册请求数据
@@ -49,63 +49,4 @@ export const validateRegisterData = (
   }
 
   next()
-}
-
-/**
- * 验证登录请求数据
- */
-export const validateLoginData = (
-  req: Request<{}, {}, LoginRequest>,
-  res: Response,
-  next: NextFunction
-): void => {
-  const { username, password } = req.body
-
-  // 检查必需字段
-  if (!username || !password) {
-    res.status(400).json({
-      success: false,
-      message: '请提供用户名和密码'
-    })
-    return
-  }
-
-  // 验证用户名格式
-  if (username.length < 3) {
-    res.status(400).json({
-      success: false,
-      message: '用户名格式不正确'
-    })
-    return
-  }
-
-  // 验证密码长度
-  if (password.length < 8) {
-    res.status(400).json({
-      success: false,
-      message: '密码格式不正确'
-    })
-    return
-  }
-
-  next()
-}
-
-/**
- * 通用的数据验证规则
- */
-export const validationRules = {
-  username: {
-    minLength: 3,
-    maxLength: 20,
-    pattern: /^[a-zA-Z0-9_]+$/
-  },
-  password: {
-    minLength: 8,
-    maxLength: 20,
-    pattern: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/
-  },
-  email: {
-    pattern: /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-  }
 }

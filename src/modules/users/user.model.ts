@@ -22,10 +22,10 @@ export class UserModel {
 
   /**
    * 通过用户ID查找用户
-   * @param {number} id - 要查找的用户ID
+   * @param {string} id - 要查找的用户ID
    * @returns {Promise<User | undefined>} 返回用户对象或undefined
    */
-  static async findById(id: number): Promise<User | undefined> {
+  static async findById(id: string): Promise<User | undefined> {
     const [users] = await pool.execute<(User & RowDataPacket)[]>(
       'SELECT * FROM users WHERE id = ?',
       [id]
@@ -40,38 +40,35 @@ export class UserModel {
    * @param {string} email - 邮箱（可选）
    * @returns {Promise<ResultSetHeader>} MySQL插入操作的结果
    */
-  static async createUser(username: string, password: string, email?: string): Promise<ResultSetHeader> {
+  static async createUser(username: string, password: string, email?: string): Promise<string> {
     // 对密码进行加密
     const hashedPassword = await bcrypt.hash(password, 10)
-    
+    const userId = crypto.randomUUID() // 生成唯一的用户ID
     // 根据是否提供email使用不同的SQL
     if (email) {
-      const [result] = await pool.execute<ResultSetHeader>(
-        'INSERT INTO users (username, password, email) VALUES (?, ?, ?)',
-        [username, hashedPassword, email]
+      await pool.execute(
+        'INSERT INTO users (id, username, password, email) VALUES (?, ?, ?, ?)',
+        [userId, username, hashedPassword, email]
       )
-      return result
     } else {
-      const [result] = await pool.execute<ResultSetHeader>(
-        'INSERT INTO users (username, password) VALUES (?, ?)',
-        [username, hashedPassword]
+      await pool.execute(
+        'INSERT INTO users (id, username, password) VALUES (?, ?, ?)',
+        [userId, username, hashedPassword]
       )
-      return result
     }
+    return userId
   }
 
   /**
    * 更新用户信息
-   * @param {number} id - 用户ID
+   * @param {string} id - 用户ID
    * @param {object} data - 要更新的数据
    * @returns {Promise<boolean>} 是否更新成功
    */
-  static async updateUser(id: number, data: {
+  static async updateUser(id: string, data: {
     avatar?: string,
     email?: string,
     phone?: string,
-    accountType?: string,
-    onlineId?: string
   }): Promise<boolean> {
     const fields: string[] = []
     const values: any[] = []
@@ -87,14 +84,6 @@ export class UserModel {
     if (data.phone !== undefined) {
       fields.push('phone = ?')
       values.push(data.phone)
-    }
-    if (data.accountType !== undefined) {
-      fields.push('accountType = ?')
-      values.push(data.accountType)
-    }
-    if (data.onlineId !== undefined) {
-      fields.push('onlineId = ?')
-      values.push(data.onlineId)
     }
     
     if (fields.length === 0) return false
@@ -126,5 +115,49 @@ export class UserModel {
       'SELECT id, username, avatar, email, phone, accountType, created_at FROM users'
     )
     return users
+  }
+
+  /**
+   * 删除用户
+   * @param {string} id - 用户ID
+   * @returns {Promise<boolean>} 是否删除成功
+   */
+  static async deleteUser(id: string): Promise<boolean> {
+    const [result] = await pool.execute<ResultSetHeader>(
+      'DELETE FROM users WHERE id = ?',
+      [id]
+    )
+    return result.affectedRows > 0
+  }
+
+  /**
+   * 保存 Refresh Token
+   */
+  static async saveRefreshToken(userId: string, refreshToken: string): Promise<void> {
+    await pool.execute(
+      'UPDATE users SET refresh_token = ? WHERE id = ?',
+      [refreshToken, userId]
+    )
+  }
+
+  /**
+   * 验证 Refresh Token
+   */
+  static async verifyRefreshToken(userId: string, refreshToken: string): Promise<boolean> {
+    const [rows] = await pool.execute<(User & RowDataPacket)[]>(
+      'SELECT refresh_token FROM users WHERE id = ?',
+      [userId]
+    )
+    return rows[0]?.refresh_token === refreshToken
+  }
+
+  /**
+   * 撤销 Refresh Token
+   */
+  static async revokeRefreshToken(userId: string, refreshToken: string): Promise<void> {
+    await pool.execute(
+      'UPDATE users SET refresh_token = NULL WHERE id = ? AND refresh_token = ?',
+      [userId, refreshToken]
+    )
   }
 }

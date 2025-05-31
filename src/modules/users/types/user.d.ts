@@ -14,10 +14,11 @@ declare namespace Express {
 
 // 用户相关类型定义
 export type User = {
-  id: number;
+  id: string;
   username: string;
   password: string;
-  email: string;
+  avatar?: string;
+  email?: string;
   phone?: string;
   created_at: Date;
   iat?: number;
@@ -54,7 +55,7 @@ export type ApiResponse<T = any> = {
 
 // JWT令牌负载
 export type JwtPayload = {
-  userId: number;
+  userId: string;
   username: string;
   iat?: number;
   exp?: number;

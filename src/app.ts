@@ -1,6 +1,7 @@
 import express, { Express } from 'express'
 import userRoutes from './modules/users/user.routes'
 import syncRoutes from './modules/sync/sync.routes';
+import authRoutes from './modules/auth/auth.routes';
 import cors from 'cors'
 
 const app: Express = express()
@@ -20,6 +21,7 @@ app.use(cors({
 app.use(express.json())
 app.use('/api', userRoutes)
 app.use('/api', syncRoutes);
+app.use('/api', authRoutes);
 app.listen(port, () => {
   console.log(`Server is running at http://localhost:${port}`)
 })
